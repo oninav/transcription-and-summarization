@@ -1,0 +1,338 @@
+[
+  {
+    "objectID": "NLP Speech.html#speech-to-text-conversion",
+    "href": "NLP Speech.html#speech-to-text-conversion",
+    "title": "",
+    "section": "Speech-to-Text Conversion",
+    "text": "Speech-to-Text Conversion\nTechniques, Tools, and Trade-offs\nOmkar Ninav\nJune 30, 2025\n\nGood [morning/afternoon], thank you for taking the time to attend this presentation.\nThe goal today is to give a structured and technical overview of speech-to-text conversion — how it works, what tools and models are currently leading the field, and what trade-offs are involved in choosing a particular solution.\nThis is a technology that’s become foundational in a wide range of domains — from customer support and assistive tech, to real-time captioning and voice interfaces. I’ll be focusing on how Python-based tools like Whisper, Wav2Vec2, and others can be used to build robust STT systems.\nBy the end, I hope to outline clearly: - How the core pipeline functions, - Which models are best suited for various use cases, and - What the cost and accuracy implications are — especially in terms of practical deployment.\nLet’s begin with the basics."
+  },
+  {
+    "objectID": "NLP Speech.html#what-is-speech-to-text",
+    "href": "NLP Speech.html#what-is-speech-to-text",
+    "title": "",
+    "section": "What is Speech-to-Text?",
+    "text": "What is Speech-to-Text?\n\nConverts spoken language into written text\nAlso known as Automatic Speech Recognition (ASR)\nUsed in applications like:\n\nVirtual assistants (e.g., Siri, Alexa)\nCaptioning & subtitling\nMeeting transcription\nVoice commands\n\n\n\nSpeech-to-text, also called Automatic Speech Recognition or ASR, is the process of converting human speech into readable, written text.\nAt a high level, it’s the core technology behind systems like Siri, Alexa, Google Assistant, and any app that takes voice input.\nBeyond virtual assistants, it’s widely used in live captioning, automated meeting transcription, voice commands in smart devices, and even accessibility tools for people with disabilities.\nIn recent years, thanks to deep learning and advances in compute power, STT systems have become far more accurate and accessible — even for developers like us working with open-source tools.\nIn the next slide, I’ll walk through the high-level architecture of how speech-to-text systems are typically designed."
+  },
+  {
+    "objectID": "NLP Speech.html#how-speech-to-text-works",
+    "href": "NLP Speech.html#how-speech-to-text-works",
+    "title": "",
+    "section": "How Speech-to-Text Works",
+    "text": "How Speech-to-Text Works\n\nAudio Input\nVoice signal captured from a microphone or file\nFeature Extraction\nConverts raw audio into numerical features (e.g., MFCCs, spectrograms)\nAcoustic Model\nMaps features to phonemes or characters using ML/DL models\nLanguage Model\nPredicts word sequences for context-aware transcription\nDecoder\nAligns acoustic and language models to produce final text\n\n\n\n\n\n\nflowchart LR\n  A[Audio Input&lt;br/&gt;Voice signal] --&gt; B[Feature Extraction&lt;br/&gt;MFCCs / Spectrograms]\n  B --&gt; C[Acoustic Model&lt;br/&gt;ML/DL-based]\n  C --&gt; D[Language Model&lt;br/&gt;Contextual Prediction]\n  D --&gt; E[Decoder&lt;br/&gt;Final Text Output]\n\n\n\n\n\n\n\nThis slide breaks down the standard architecture behind most modern speech-to-text systems.\nIt starts with the audio input, typically a microphone recording or audio file, which is passed to a feature extraction module. This module transforms the raw waveform into meaningful patterns — usually through methods like MFCCs (Mel-Frequency Cepstral Coefficients) or spectrograms.\nNext, the acoustic model interprets these features and maps them to likely phonemes or character sequences. Traditionally, these were HMM-based, but today they’re often deep neural networks like CNNs, RNNs, or transformers.\nThe language model plays a critical role — it uses linguistic context to predict the most likely word sequences. This is what helps the system understand the difference between similar-sounding phrases like “ice cream” vs “I scream.”\nFinally, the decoder combines all of this — the acoustic predictions and the language probabilities — to produce the final transcription.\nUnderstanding this pipeline helps clarify where different models and libraries fit in, and what we can tweak based on accuracy, speed, or deployment constraints."
+  },
+  {
+    "objectID": "NLP Speech.html#techniques-traditional-asr",
+    "href": "NLP Speech.html#techniques-traditional-asr",
+    "title": "",
+    "section": "Techniques: Traditional ASR",
+    "text": "Techniques: Traditional ASR\n\nHMMs + GMMs\nEarly models for mapping acoustic features to phonemes\nn-gram Language Models\nPredict word sequences based on prior word probabilities\nFeature Extraction (MFCCs)\nConverts raw audio into spectral features\n\n\nLet’s start with traditional ASR systems.\nEarly speech recognition was built using Hidden Markov Models (HMMs) and Gaussian Mixture Models (GMMs). HMMs model the sequential nature of speech, and GMMs handle the probability distributions of acoustic features within each state.\nFor predicting the next word or phrase, systems used n-gram language models — for example, a trigram model would look at the two previous words to estimate the next one. These models were easy to implement but had limited ability to understand context or long-term dependencies.\nThe front end of these systems used MFCCs (Mel-Frequency Cepstral Coefficients) to convert audio waveforms into feature vectors that captured the shape and tone of the speech signal. MFCCs remain popular even in some deep learning systems due to their compact and informative representation of sound.\nWhile these traditional methods laid the foundation for modern ASR, they struggled with complex variations like accents, overlapping speakers, and noisy environments."
+  },
+  {
+    "objectID": "NLP Speech.html#techniques-deep-learning-modern-trends",
+    "href": "NLP Speech.html#techniques-deep-learning-modern-trends",
+    "title": "",
+    "section": "Techniques: Deep Learning & Modern Trends",
+    "text": "Techniques: Deep Learning & Modern Trends\n\nRNNs, CNNs, Transformers\nDeep models for sequence modeling and attention\nEnd-to-End Models (CTC / Attention)\nLearn transcription directly from audio input\nTrends\n\nSelf-supervised learning (e.g. Wav2Vec 2.0)\nMultilingual support (e.g. Whisper)\nOn-device inference (edge devices, mobile)\n\n\n\nModern speech recognition systems have shifted toward deep learning.\nInitially, Recurrent Neural Networks (RNNs) were used because they could model sequences — perfect for speech. Then came Convolutional Neural Networks (CNNs) to handle time-frequency patterns in audio. Today, transformers are dominant due to their superior performance in modeling long-range dependencies and context.\nInstead of breaking the process into multiple modules like traditional ASR, deep learning systems often use end-to-end models. These can be trained to map directly from raw audio to text using techniques like Connectionist Temporal Classification (CTC) or attention-based models.\nRecent trends in STT are pushing the field even further: - Self-supervised learning enables models like Wav2Vec 2.0 to learn from raw, unlabeled audio — drastically reducing the need for costly transcriptions. - Models like Whisper offer multilingual support and are robust to accents and background noise. - There’s also growing interest in on-device inference, where models are small and efficient enough to run on phones, edge devices, or embedded systems — ensuring both privacy and speed.\nThese modern techniques make STT more accurate, scalable, and accessible than ever before."
+  },
+  {
+    "objectID": "NLP Speech.html#python-libraries-for-speech-to-text-12",
+    "href": "NLP Speech.html#python-libraries-for-speech-to-text-12",
+    "title": "",
+    "section": "Python Libraries for Speech-to-Text (1/2)",
+    "text": "Python Libraries for Speech-to-Text (1/2)\n\nWhisper (OpenAI)\n\nTransformer-based, multilingual\nHigh accuracy, runs offline\n\nSpeechRecognition\n\nSimple API wrapper for Google, IBM, etc.\nEasy for beginners\n\nWav2Vec 2.0 (Hugging Face)\n\nPretrained self-supervised models\nHigh-quality transcriptions\n\n\n\nThis slide introduces three powerful Python tools used in speech-to-text development.\nWhisper is one of the best-performing open-source models available. It supports multilingual audio, works offline, and is robust to noise and accents. It does require a decent GPU, but the results are exceptional.\nSpeechRecognition is simple and wraps around cloud APIs like Google or IBM Watson. It’s great for quick demos or for beginners but is not suitable for offline or secure environments.\nWav2Vec 2.0 is built by Meta and available on Hugging Face. It’s transformer-based, pre-trained on massive audio corpora, and can deliver near state-of-the-art accuracy, especially on clean English audio."
+  },
+  {
+    "objectID": "NLP Speech.html#python-libraries-for-speech-to-text-22",
+    "href": "NLP Speech.html#python-libraries-for-speech-to-text-22",
+    "title": "",
+    "section": "Python Libraries for Speech-to-Text (2/2)",
+    "text": "Python Libraries for Speech-to-Text (2/2)\n\nDeepSpeech (Mozilla)\n\nLightweight and fast\nLess accurate on noisy inputs\n\nKaldi (via PyKaldi)\n\nResearch-grade toolkit\nSteeper learning curve\n\nVosk\n\nReal-time offline STT\nWorks on Raspberry Pi, Android, desktops\nMultilingual, very lightweight\n\n\n\nDeepSpeech, from Mozilla, was designed for simplicity and edge deployment. It’s fast and easy to install, but less accurate in noisy or real-world conditions compared to newer models.\nKaldi is a highly flexible and powerful toolkit often used in academia or enterprise. It offers full control over the speech recognition pipeline, including acoustic and language models. However, it’s not beginner-friendly and requires significant setup effort. The Python wrapper PyKaldi helps but still demands technical depth.\nVosk is an often-overlooked gem. It supports real-time offline transcription in 20+ languages, including Hindi, Marathi, and more. It runs even on low-resource devices like Raspberry Pi or Android phones. It’s ideal for small, local deployments where Whisper would be too heavy or cloud is not an option.\nSplitting the content across two slides avoids overcrowding and gives us room to discuss each tool more clearly."
+  },
+  {
+    "objectID": "NLP Speech.html#model-comparison-features-at-a-glance",
+    "href": "NLP Speech.html#model-comparison-features-at-a-glance",
+    "title": "",
+    "section": "Model Comparison: Features at a Glance",
+    "text": "Model Comparison: Features at a Glance\n\n\n\n\n\n\n\n\n\n\n\nModel\nAccuracy\nOffline\nMultilingual\nEase of Use\nCost\n\n\n\n\nWhisper\n✅✅✅\n✅\n✅✅✅\n✅✅\nFree\n\n\nWav2Vec 2.0\n✅✅\n✅\n⚠️ (mostly English)\n✅\nFree\n\n\nGoogle API\n✅✅✅\n❌\n✅✅✅\n✅✅✅\nPaid\n\n\nDeepSpeech\n✅\n✅\n❌\n✅✅\nFree\n\n\nKaldi\n✅✅\n✅\n✅ (with effort)\n⚠️ Complex\nFree\n\n\nVosk\n✅✅\n✅\n✅✅\n✅✅✅\nFree\n\n\n\n\nThis table summarizes the strengths and limitations of some of the most widely used speech-to-text models and toolkits.\nStarting with Whisper, it stands out as a balanced option — it offers high accuracy, works offline, supports multiple languages, and is open-source. It does require a decent GPU to run efficiently, especially for long audio files or real-time use, but it’s very accessible for developers and teams with modest resources.\nWav2Vec 2.0 is another excellent option. It provides high accuracy, especially when fine-tuned on domain-specific data. However, it’s primarily trained on English datasets, so multilingual support is more limited unless you retrain it. It’s open-source and can be accessed via Hugging Face.\nGoogle Speech-to-Text API is a commercial solution. It offers very high accuracy and supports over 100 languages. It’s excellent for real-time use cases and scales easily. However, it’s not free — the cost is around $1.44 per hour, and it requires internet connectivity, which may raise privacy concerns in sensitive environments.\nDeepSpeech was designed to be lightweight and fast, making it suitable for edge devices. That said, it has started to lag behind in terms of accuracy, especially on noisy or accented inputs, and its development has slowed down in recent years.\nKaldi is extremely powerful and flexible. It’s used in many academic and enterprise applications where low-level control is needed — for instance, custom language models, speaker adaptation, and complex pipelines. However, it’s not beginner-friendly, and the learning curve is steep. PyKaldi can help if you want to work with it in Python.\nVosk is surprisingly effective given its small size. It offers decent accuracy, real-time performance, works fully offline, and is extremely easy to integrate — especially on embedded systems or mobile platforms.For projects targeting Indian languages or edge devices, Vosk can be a better fit than Whisper or cloud APIs.\nThis slide helps us decide which model might be most appropriate depending on our project constraints — whether we prioritize cost, offline access, multilingual support, or ease of use.\nIn the next slide, we’ll break down the cost aspect more specifically, including free tiers and usage pricing for cloud APIs."
+  },
+  {
+    "objectID": "NLP Speech.html#cost-open-source-models",
+    "href": "NLP Speech.html#cost-open-source-models",
+    "title": "",
+    "section": "Cost: Open-Source Models",
+    "text": "Cost: Open-Source Models\n\n\n\nModel\nCost\nOffline Use\nCloud Required\n\n\n\n\nWhisper\nFree (Open Source)\n✅\n❌\n\n\nWav2Vec 2.0\nFree (Open Source)\n✅\n❌\n\n\nDeepSpeech\nFree (Open Source)\n✅\n❌\n\n\nKaldi\nFree (Open Source)\n✅\n❌\n\n\nVosk\nFree (Open Source)\n✅\n❌\n\n\n\n\nAll of these models are completely free and can run offline. This gives us full control over the transcription pipeline, which is useful for privacy-sensitive environments or when working with large amounts of audio data.\nWhisper is the most accurate among these and works well out of the box. Wav2Vec 2.0 is also strong, especially with fine-tuning. DeepSpeech is lightweight but older, and Kaldi offers research-grade customization — though with a steep learning curve. Vosk, in particular, is very lightweight. It can run on mobile devices and Raspberry Pi, making it ideal for resource-constrained environments.\nThe key point here is: these tools have no recurring costs and no internet dependency — ideal for secure or offline environments."
+  },
+  {
+    "objectID": "NLP Speech.html#cost-cloud-apis",
+    "href": "NLP Speech.html#cost-cloud-apis",
+    "title": "",
+    "section": "Cost: Cloud APIs",
+    "text": "Cost: Cloud APIs\n\n\n\n\n\n\n\n\n\nService\nApprox. Cost\nOffline Use\nCloud Required\n\n\n\n\nGoogle Speech API\n~$1.44 per hour\n❌\n✅\n\n\nAWS Transcribe\n~$1.44 per hour\n❌\n✅\n\n\nAzure Speech\n~$1.60 per hour\n❌\n✅\n\n\n\n\nCloud APIs offer high performance and easy integration, but they come at a cost.\nThese services typically charge around $1.44 to $1.60 per hour of audio processed. The pricing is usually pay-as-you-go, and may include limited free tiers initially.\nThey are useful for real-time transcription, multi-language support, and when we don’t want to manage infrastructure ourselves.\nHowever, they require internet access, and data is transmitted to external servers, which might raise privacy or compliance concerns.\nSo while cloud APIs are powerful, we need to carefully evaluate whether the convenience justifies the ongoing cost and cloud dependency."
+  },
+  {
+    "objectID": "NLP Speech.html#cost-summary-recommendation",
+    "href": "NLP Speech.html#cost-summary-recommendation",
+    "title": "",
+    "section": "Cost – Summary & Recommendation",
+    "text": "Cost – Summary & Recommendation\n\nOpen-Source Models (Whisper, Wav2Vec, etc.)\n\n✅ Free and offline\n⚠️ Require setup and local resources\n\nCloud APIs (Google, AWS, Azure)\n\n✅ Easy to use, scalable\n⚠️ Ongoing cost and privacy trade-offs\n\n\n✔️ Recommendation:\nUse Whisper or Wav2Vec 2.0 for local, cost-effective transcription\nUse Vosk for light, multilingual offline STT (e.g. edge devices)\nUse Cloud APIs only for real-time or highly multilingual needs\n\nTo summarize, open-source models like Whisper and Wav2Vec are ideal when we want a free, offline, and private solution. They do require more local compute and some initial setup, but the cost savings and control can be significant — especially for batch processing or secure applications.\nCloud APIs are best suited when we need real-time transcription, scalability, or support for multiple languages out of the box. However, they incur ongoing costs and may raise data privacy issues.\nFor most internal use cases or offline processing, Whisper offers the best trade-off. For external client-facing products, cloud APIs can be considered with proper cost tracking."
+  },
+  {
+    "objectID": "NLP Speech.html#final-decision",
+    "href": "NLP Speech.html#final-decision",
+    "title": "",
+    "section": "✅ Final Decision",
+    "text": "✅ Final Decision\nChosen Model: openai/whisper-medium\n🔹 Why Whisper Medium?\n\n✅ Good balance between accuracy and inference speed\n✅ Lower VRAM & compute requirements than large models\n✅ Suitable for local deployment (runs on RTX 4050)\n✅ Consistent performance across test cases\n✅ Robust to mild accents and moderate background noise\n\n🔸 Not Chosen:\n\nwhisper-large: Higher accuracy but heavier (more VRAM)\nwhisper-tiny / base: Faster, but less accurate\n\n\nAfter testing several models, we’ve decided to go with Whisper Medium.\nIt provides a strong balance between accuracy and speed, especially on a GPU like RTX 4050. While the large model performed slightly better in accuracy, its inference time and GPU memory use were significantly higher — which isn’t ideal for our production use.\nThe tiny and base models were faster, but dropped too much in transcription quality, especially for longer or more technical audio.\nWhisper Medium gives us consistent results and can run fully offline, which fits both our deployment and privacy goals. It’s the best fit given our constraints and performance requirements."
+  },
+  {
+    "objectID": "NLP Speech.html#transcript-evaluation-whisper-vs-original",
+    "href": "NLP Speech.html#transcript-evaluation-whisper-vs-original",
+    "title": "",
+    "section": "📝 Transcript Evaluation – Whisper vs Original",
+    "text": "📝 Transcript Evaluation – Whisper vs Original\n🎙️ Sample: NPTEL Lecture – Literature History\n📌 Original:\n&gt; At the outset, this being the first session, it is very important to give an overview of the course. This course is spread over 12 weeks and we may have 30 hours of teaching involved in this. Let me also introduce you to the objectives of this course so that the intentions become clearer.\n🌀 Whisper Output:\n&gt; At the outset, this being the first session, it is very important to give an overview of the course. This course is spread over 12 weeks and we may have 30 hours of teaching involved in this and we also introduce you to the objectives of this course so that the intentions become more clear.\n🔹 ✅ Core content retained\n🔹 ⚠️ Minor stylistic variation – rephrasing & joined sentences"
+  },
+  {
+    "objectID": "NLP Speech.html#section",
+    "href": "NLP Speech.html#section",
+    "title": "",
+    "section": "",
+    "text": "🧠 Observation Summary\n\nWhisper captured all key points with high fidelity\nPunctuation differences due to lack of postprocessing\nFiller words (“we also”) inserted naturally from speech\nIdeal for lecture summarization, accessibility, or note generation\n\n\nIn this real-world evaluation using an NPTEL lecture, Whisper accurately transcribed complex academic content, maintaining meaning and structure.\nThe differences observed are stylistic, not factual. Punctuation is less formal, and there’s a natural flow of spoken language like “we also introduce…” instead of “Let me also introduce…”\nThis shows that Whisper is reliable for lecture or classroom transcription, even in moderately accented or Indian English speech. It preserves intent and phrasing even with unedited audio input."
+  },
+  {
+    "objectID": "NLP Speech.html#whisper-accuracy",
+    "href": "NLP Speech.html#whisper-accuracy",
+    "title": "",
+    "section": "📊 Whisper Accuracy",
+    "text": "📊 Whisper Accuracy\n🔹 Quantitative Evaluation\n\nSemantic Similarity (cosine): 0.9766 ✅\nROUGE-1 F1 Score: 0.9714\n\nROUGE-L F1 Score: 0.9524\n\nWord Error Rate (WER): 12.43%\n\n🔍 Interpretation\n\n✅ Very high semantic match – meaning fully preserved\n\n✅ Low WER – minor word-level issues\n\n✅ ROUGE scores confirm strong overlap in phrase structure\n\n⚠️ Differences mostly in punctuation, filler words, and phrasing\n\n\nIn this test, Whisper Medium showed outstanding performance on an NPTEL academic lecture.\nA semantic similarity score of 0.9766 indicates that the transcript preserves nearly all the original meaning. ROUGE-1 and ROUGE-L scores also reflect strong overlap in vocabulary and sentence structure.\nThe Word Error Rate is just 12.43%, which is excellent for real-world speech and unedited audio.\nWhisper handled Indian English fluently, captured the instructional tone well, and only struggled with minor phrasing and punctuation.\nThis confirms Whisper’s suitability for academic transcription, content indexing, and lecture summarization tasks."
+  },
+  {
+    "objectID": "NLP Speech.html#transcript-comparison-whisper-vs-original",
+    "href": "NLP Speech.html#transcript-comparison-whisper-vs-original",
+    "title": "",
+    "section": "📝 Transcript Comparison – Whisper vs Original",
+    "text": "📝 Transcript Comparison – Whisper vs Original\n🎙️ Sample: NPTEL Lecture – Taylor Series Intro\n📌 Original:\n&gt; Welcome back to the lectures on Engineering Mathematics-I.\n&gt; Today, we will learn Taylor’s Polynomial and Taylor Series.\n🌀 Whisper Output:\n&gt; Hi, welcome back to the lectures on Engineering Mathematics I and today’s we will learn Taylor’s polynomial and Taylor series.\n🔹 ✅ Core message preserved\n🔹 Minor changes:\n- Added “Hi”\n- “today’s we” instead of “today we”\n- Punctuation differences only"
+  },
+  {
+    "objectID": "NLP Speech.html#section-1",
+    "href": "NLP Speech.html#section-1",
+    "title": "",
+    "section": "",
+    "text": "🎙️ Sample: Exponential Function Example\n📌 Original:\n&gt; The polynomial of degree 0 will simply be 1.\n&gt; If we plot this, it’s the green line through the point (0, 1).\n🌀 Whisper Output:\n&gt; So, the polynomial of degree 0 will be simply 1 and if we plot this. So, this is the green plot here of the exponential function and this polynomial of degree 0 is just a constant line. So, the straight line going through this 0 1 point.\n🔹 ✅ Richer phrasing from audio\n🔹 Whisper added spontaneous repetitions and fillers (“so”, “here”)\n🔹 All technical meaning retained\n\nThese examples show that Whisper Medium provides a high-fidelity transcription of spoken technical content.\nIn the first clip, it added a conversational “Hi” and reordered “today’s we” — a typical STT quirk, but the meaning is perfectly preserved.\nIn the second clip, Whisper captured additional spoken context and filler words like “so,” which were omitted in the polished text. Still, the math-specific phrasing and structure — like “degree 0 polynomial” and “point (0, 1)” — were accurate.\nOverall, Whisper handled clear, structured academic English very well, even in continuous lecture format."
+  },
+  {
+    "objectID": "NLP Speech.html#whisper-accuracy-1",
+    "href": "NLP Speech.html#whisper-accuracy-1",
+    "title": "",
+    "section": "📊 Whisper Accuracy",
+    "text": "📊 Whisper Accuracy\n🔹 Quantitative Evaluation\n\nSemantic Similarity (cosine): 0.8882\n\nROUGE-1 F1 Score: 0.9116\n\nROUGE-L F1 Score: 0.8913\n\nWord Error Rate (WER): 26.33%\n\n🔍 Interpretation\n\n✅ Meaning mostly preserved, despite phrasing variation\n\n⚠️ Slight drop in surface-level overlap (function words, rewording)\n\n⚠️ Higher WER due to longer output and added filler words\n\n\nIn this earlier test, Whisper Medium still performed well, but not as strongly as in the second test.\nThe semantic similarity score of 0.8882 indicates that the transcript largely matched the original in meaning — even though phrasing and filler words may differ.\nROUGE scores are also strong, though slightly lower, likely because Whisper introduced additional spoken-style elements like filler words and partial repetitions that were not in the polished reference transcript.\nThe Word Error Rate of 26.33% is higher, but most errors were minor — missing function words, punctuation, or changes in word order — rather than major content issues.\nThis reflects Whisper’s tendency to follow real speech patterns closely, which may differ from cleaned-up transcripts."
+  },
+  {
+    "objectID": "NLP Speech.html#conclusion-summary",
+    "href": "NLP Speech.html#conclusion-summary",
+    "title": "",
+    "section": "Conclusion & Summary",
+    "text": "Conclusion & Summary\n\nSTT is a mature, versatile technology\nOpen-source tools (Whisper, Wav2Vec) offer high quality with no cost\nCloud APIs provide convenience but incur recurring costs\nModel choice depends on:\n✅ Accuracy\n✅ Cost\n✅ Deployment constraints\n✅ Privacy needs\n\n✔️ Recommended:\nUse Whisper for secure, offline transcription\nUse cloud APIs only where real-time & scalability are critical\n\nTo wrap up:\nSpeech-to-text is now a reliable and accessible technology, with options for both local and cloud-based use cases. Open-source models like Whisper and Wav2Vec 2.0 offer high performance without licensing fees, making them excellent choices for internal tools or data-sensitive applications.\nCloud APIs are valuable when speed, scale, or language diversity is essential — but they should be weighed against cost and privacy considerations.\nUltimately, the choice depends on our project’s priorities — whether that’s minimizing cost, protecting data, supporting real-time use, or ensuring high accuracy.\nThank you."
+  },
+  {
+    "objectID": "NLP Speech.html#thank-you",
+    "href": "NLP Speech.html#thank-you",
+    "title": "",
+    "section": "Thank You!",
+    "text": "Thank You!\nQuestions? Suggestions?\n🔗 View this presentation on GitHub:\nPresented by Omkar Ninav — June 2025\n\nThank you for your attention! I’m happy to take questions, discuss possible use cases for STT in our workflows, or explore ways we can experiment with tools like Whisper in-house.\nThe full slide deck and source code are available on GitHub for review, reuse, or contributions.\n\n\n\n\nInternal Use Only | Not For Redistribution"
+  },
+  {
+    "objectID": "presentation.html#automatic-transcription-summarization-pipeline",
+    "href": "presentation.html#automatic-transcription-summarization-pipeline",
+    "title": "Automatic Transcription and Summarization of Educational Video Content",
+    "section": "Automatic Transcription & Summarization Pipeline",
+    "text": "Automatic Transcription & Summarization Pipeline\nInternship Project (OJT)\nOmkar Ninav\nSupervised by: Dr. Dinesh Helwade\n2025"
+  },
+  {
+    "objectID": "presentation.html#upload-transcribe-summarize-download",
+    "href": "presentation.html#upload-transcribe-summarize-download",
+    "title": "Automatic Transcription and Summarization of Educational Video Content",
+    "section": "Upload → Transcribe → Summarize → Download",
+    "text": "Upload → Transcribe → Summarize → Download\n\n\n\nLazy model loading\nGPU compatibility\nReal-time progress\n\n\n\n\n\nUI Screenshot"
+  },
+  {
+    "objectID": "presentation.html#sample-outputs",
+    "href": "presentation.html#sample-outputs",
+    "title": "Automatic Transcription and Summarization of Educational Video Content",
+    "section": "Sample Outputs",
+    "text": "Sample Outputs"
+  },
+  {
+    "objectID": "presentation.html#key-challenges",
+    "href": "presentation.html#key-challenges",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Key Challenges",
+    "text": "Key Challenges\n\nManual note-taking is tedious and error-prone\nSearchability within videos is limited\nLack of concise summaries for quick reference\nExisting transcription tools are often paid or closed-source\n\n\nLet’s dive into the specific problem we’re addressing. First, transcription and summarization are essential but tedious tasks if done manually — especially for long lectures or talks. They require time, accuracy, and domain understanding — something that’s hard to scale. Secondly, educational content often includes complex terminology, equations, and multi-speaker interactions, making accurate speech recognition even harder. Third, many existing transcription tools are cloud-based, expensive, or require constant internet — not ideal for academic or institutional use. What we needed was a flexible, GPU-accelerated, open-source pipeline that can be used even offline, with support for different models, good accuracy, and ease of deployment. That was the challenge — and the motivation behind this project."
+  },
+  {
+    "objectID": "presentation.html#motivation",
+    "href": "presentation.html#motivation",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Motivation",
+    "text": "Motivation\nTo build an open-source, end-to-end solution that enables:\n\nAccurate transcription of video/audio files\nHigh-quality summarization of transcripts\nA web interface for ease of use by educators and students\n\n\nIn recent years, video content has emerged as the dominant form of communication, especially in education, conferences, and online platforms. With affordable smartphones and high-speed internet, everyone can now record and upload lectures, presentations, or tutorials. But while we have tons of valuable information in videos, extracting insights from them is still a challenge. Videos are inherently unstructured — there’s no easy way to search through them, skim key points, or even understand the content without watching them in full. That’s where automatic transcription and summarization becomes vital — not just for accessibility, but also for efficient knowledge retrieval and documentation. Our project aims to solve this by building a complete, end-to-end pipeline that takes in a video and outputs structured, summarized text.\n\n\n\n\nOJT Project – 2025"
+  },
+  {
+    "objectID": "presentation.html#introductionproblem-statement",
+    "href": "presentation.html#introductionproblem-statement",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Introduction/Problem Statement",
+    "text": "Introduction/Problem Statement\nVideo content has become the most preferred medium for disseminating information — especially in academia, conferences, and online education. However, extracting insights or reviewing content from long-form videos remains time-consuming and inefficient.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nIn recent years, video content has emerged as the dominant form of communication, especially in education, conferences, and online platforms. With affordable smartphones and high-speed internet, everyone can now record and upload lectures, presentations, or tutorials. But while we have tons of valuable information in videos, extracting insights from them is still a challenge. Videos are inherently unstructured — there’s no easy way to search through them, skim key points, or even understand the content without watching them in full. That’s where automatic transcription and summarization becomes vital — not just for accessibility, but also for efficient knowledge retrieval and documentation. Our project aims to solve this by building a complete, end-to-end pipeline that takes in a video and outputs structured, summarized text."
+  },
+  {
+    "objectID": "presentation.html#preface",
+    "href": "presentation.html#preface",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Preface",
+    "text": "Preface\nThis On-the-Job Training (OJT) project provided an invaluable opportunity to apply theoretical knowledge of natural language processing, deep learning, and data engineering into a real-world application. The primary objective was to build a pipeline for automatic transcription and summarization of educational and conference video content, aimed at making such content more accessible and searchable.\nI would like to express my sincere gratitude to Dr. Dinesh Helwade for his guidance and encouragement throughout the project. It was under his initiative that this project was designed with a vision to open-source transcription and summarization tools for the benefit of educational institutions and research communities.\nThis project marks a critical step in combining machine learning technology with accessibility goals in education."
+  },
+  {
+    "objectID": "presentation.html#project-objectives",
+    "href": "presentation.html#project-objectives",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Project Objectives",
+    "text": "Project Objectives\n\nAutomate Speech-to-Text Conversion\n\nImplement Robust Summarization\n\nDesign an Interactive Web Interface\n\nSupport Long Audio/Video Files\n\nEnsure Local and Scalable Deployment\n\nImprove Accessibility and Productivity\n\n\nThe project was driven by six main objectives:\nFirst, to automate speech-to-text conversion using advanced models like Whisper. This automation drastically reduces the manual labor involved in transcribing lectures or meetings.\nSecond, to implement robust summarization techniques so users can quickly grasp the essence of lengthy content. We experimented with both traditional and transformer-based summarizers for this.\nThird, to design an interactive web interface that simplifies the workflow. Whether it’s uploading files, selecting models, or downloading outputs, the interface was made intuitive and user-centric.\nFourth, to support long audio or video files, which is essential for real-world educational and conference materials that often span over an hour.\nFifth, we aimed to ensure the system could be deployed locally, especially for institutions without reliable internet. At the same time, it needed to be scalable if deployed on cloud infrastructure.\nAnd finally, we wanted the tool to enhance accessibility and productivity — by making academic and technical content more searchable, reviewable, and shareable."
+  },
+  {
+    "objectID": "presentation.html#pipeline",
+    "href": "presentation.html#pipeline",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Pipeline",
+    "text": "Pipeline\n\n\nThis slide outlines the core pipeline that was developed during the OJT.\nStep 1: The user begins by uploading an audio or video file through the web interface. We made sure the app accepts common formats like .mp4, .mp3, .wav, etc.\nStep 2: If a video is uploaded, the system extracts the audio using FFmpeg and then resamples it to 16kHz mono WAV format — which is the requirement for the transcription models.\nStep 3: The audio is transcribed using either Whisper or its faster variant, Faster-Whisper. The model is loaded lazily only after the user selects it, optimizing memory usage.\nStep 4: The raw transcript is cleaned and broken into manageable chunks. This ensures better summarization and avoids truncation during model inference.\nStep 5: The processed chunks are summarized using the facebook/bart-large-cnn model. This step significantly reduces the size of the text while retaining the core message.\nStep 6: Finally, the output is shown in the UI and the user is given options to download the transcript and summary in .txt format."
+  },
+  {
+    "objectID": "presentation.html#model-comparison-features-at-a-glance",
+    "href": "presentation.html#model-comparison-features-at-a-glance",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Model Comparison: Features at a Glance",
+    "text": "Model Comparison: Features at a Glance\n\n\n\n\n\n\n\n\n\n\n\nModel\nAccuracy\nOffline\nMultilingual\nEase of Use\nCost\n\n\n\n\nWhisper\n✅✅✅\n✅\n✅✅✅\n✅✅\nFree\n\n\nWav2Vec 2.0\n✅✅\n✅\n⚠️ (mostly English)\n✅\nFree\n\n\nGoogle API\n✅✅✅\n❌\n✅✅✅\n✅✅✅\nPaid\n\n\nDeepSpeech\n✅\n✅\n❌\n✅✅\nFree\n\n\nKaldi\n✅✅\n✅\n✅ (with effort)\n⚠️ Complex\nFree\n\n\nVosk\n✅✅\n✅\n✅✅\n✅✅✅\nFree\n\n\n\n\nThis table summarizes the strengths and limitations of some of the most widely used speech-to-text models and toolkits.\nStarting with Whisper, it stands out as a balanced option — it offers high accuracy, works offline, supports multiple languages, and is open-source. It does require a decent GPU to run efficiently, especially for long audio files or real-time use, but it’s very accessible for developers and teams with modest resources.\nWav2Vec 2.0 is another excellent option. It provides high accuracy, especially when fine-tuned on domain-specific data. However, it’s primarily trained on English datasets, so multilingual support is more limited unless you retrain it. It’s open-source and can be accessed via Hugging Face.\nGoogle Speech-to-Text API is a commercial solution. It offers very high accuracy and supports over 100 languages. It’s excellent for real-time use cases and scales easily. However, it’s not free — the cost is around $1.44 per hour, and it requires internet connectivity, which may raise privacy concerns in sensitive environments.\nDeepSpeech was designed to be lightweight and fast, making it suitable for edge devices. That said, it has started to lag behind in terms of accuracy, especially on noisy or accented inputs, and its development has slowed down in recent years.\nKaldi is extremely powerful and flexible. It’s used in many academic and enterprise applications where low-level control is needed — for instance, custom language models, speaker adaptation, and complex pipelines. However, it’s not beginner-friendly, and the learning curve is steep. PyKaldi can help if you want to work with it in Python.\nVosk is surprisingly effective given its small size. It offers decent accuracy, real-time performance, works fully offline, and is extremely easy to integrate — especially on embedded systems or mobile platforms.For projects targeting Indian languages or edge devices, Vosk can be a better fit than Whisper or cloud APIs.\nThis slide helps us decide which model might be most appropriate depending on our project constraints — whether we prioritize cost, offline access, multilingual support, or ease of use.\nIn the next slide, we’ll break down the cost aspect more specifically, including free tiers and usage pricing for cloud APIs."
+  },
+  {
+    "objectID": "presentation.html#tools-technologies-used",
+    "href": "presentation.html#tools-technologies-used",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Tools & Technologies Used",
+    "text": "Tools & Technologies Used\n\nSpeech Models: Whisper(Base & Medium), Faster-Whisper\n\nSummarization: BART (facebook/bart-large-cnn), SUMY(Luhn)\n\nWeb Interface: Streamlit\nPreprocessing: FFmpeg\nProgramming Language: Python\n\nOthers: ONNX Runtime, Transformers\n\n\nIn this slide, we highlight the major tools and frameworks used in the project.\nStarting with the transcription models, we used Whisper and Faster-Whisper — both known for their accuracy and ability to handle multilingual input. Faster-Whisper offers better speed and efficiency due to its optimized inference engine.\nFor summarization, we used BART, specifically the facebook/bart-large-cnn model, which is well-suited for document-level abstractive summarization.\nOn the web interface side, the final implementation uses Streamlit because of its lightweight design and ease of development. We also explored Shiny for Python for comparison, but ultimately preferred Streamlit for its simplicity and deployment flexibility.\nFFmpeg was used to handle audio extraction and conversion from video files, and waveform processing.\nThe entire project was built in Python, taking advantage of modern NLP libraries like Transformers and ONNX Runtime for efficient model execution.\nAll these tools together enabled us to create a modular, scalable, and responsive speech-to-text summarization system."
+  },
+  {
+    "objectID": "presentation.html#about-organization",
+    "href": "presentation.html#about-organization",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "About Organization",
+    "text": "About Organization\nPradnyaa InfoVision, headquartered in Pune, India, is a specialized analytics and consulting firm with over four years of experience delivering data-driven solutions. The company operates across two core domains: Retail Analytics and Biostatistics, offering deep domain expertise and tailored consulting to global clients."
+  },
+  {
+    "objectID": "presentation.html#challengeslimitation",
+    "href": "presentation.html#challengeslimitation",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "challenges/limitation",
+    "text": "challenges/limitation"
+  },
+  {
+    "objectID": "presentation.html#key-learnings",
+    "href": "presentation.html#key-learnings",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Key Learnings",
+    "text": "Key Learnings\n\nGained hands-on experience with speech-to-text pipelines\nUnderstood limitations of transformer-based summarizers\nBuilt a real-world app using Streamlit and ONNX\nImproved skills in modular Python design and lazy loading\nLearned how to evaluate model fit for domain-specific data\n\n\nApp\n\nThis project provided an opportunity to combine theoretical understanding with practical implementation. Working with Whisper and BART helped deepen my knowledge of transformer models and their real-world behavior.\nDeveloping the app with Streamlit required careful architectural planning — from lazy loading large models only when needed, to handling long audio files efficiently. I also learned how to evaluate different tools not just based on performance but also deployment feasibility — for instance, comparing GPU vs CPU inference or assessing ONNX integration for faster execution.\nThe most valuable takeaway was understanding that building an end-to-end ML pipeline involves more than just good models — you need UX design, robustness, and awareness of hardware and domain limitations."
+  },
+  {
+    "objectID": "presentation.html#conclusion",
+    "href": "presentation.html#conclusion",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Conclusion",
+    "text": "Conclusion\n\nWe successfully built an end-to-end speech-to-text and summarization pipeline.\nLeveraged powerful models like Whisper and BART for high-quality transcription and summarization.\nExplored alternative models and toolkits for varied use cases (offline, multilingual, edge devices).\nDeployed the solution using Streamlit to provide a user-friendly interface.\nIdentified limitations with respect to summarizing technical or mathematical content.\nGained practical experience with NLP tools, model selection, and pipeline integration.\n\n\nThis final slide wraps up the project by highlighting what was achieved and learned. We saw how different models serve different needs and explored both the capabilities and trade-offs of state-of-the-art tools.\nBeyond just building the pipeline, the project helped deepen our understanding of real-world NLP deployment, limitations of current models, and the importance of model selection based on context."
+  },
+  {
+    "objectID": "presentation.html#future-scope",
+    "href": "presentation.html#future-scope",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Future Scope",
+    "text": "Future Scope\n\nFine-tune models for domain-specific use (math, stats, etc.)\nAdd punctuation restoration and sentence boundary detection\nEvaluate on regional languages and accents\nExplore lightweight or multilingual alternatives (e.g., DistilBART)\nResearch math-aware or rule-based summarizers\n\n\nTo address these issues, future work can include domain-specific fine-tuning, better formatting tools, and switching to lighter models for real-time use. For mathematical content, models that understand LaTeX or symbolic math may help — or even hybrid rule-based techniques."
+  },
+  {
+    "objectID": "presentation.html#section",
+    "href": "presentation.html#section",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "",
+    "text": "🛒 Retail Analytics Division\nThe Retail Analytics team at Pradnyaa InfoVision excels in demand forecasting, leveraging both standard statistical models and cutting-edge machine learning algorithms. Their capabilities span across:\n\nRegular Price Optimization\nMarkdown Strategy & Optimization\nInventory Optimization\n\nOne of the firm’s flagship projects involved partnering with a major U.S. retailer to design and execute a comprehensive price test across the entire U.S. region—demonstrating the company’s global reach and strategic insight."
+  },
+  {
+    "objectID": "presentation.html#section-1",
+    "href": "presentation.html#section-1",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "",
+    "text": "🧪 Biostatistics & Clinical Trial Analytics\nIn the life sciences space, Pradnyaa InfoVision plays a key role in the analysis and processing of all three phases of clinical trials. The Biostatistics division supports pharmaceutical and healthcare companies by providing end-to-end statistical solutions that comply with global regulatory standards."
+  },
+  {
+    "objectID": "presentation.html#section-2",
+    "href": "presentation.html#section-2",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "",
+    "text": "🌍 Offshore Delivery and Managed Services\nBeyond analytics, the company also provides strategic consulting for offshore office setup and management in India. This includes team recruitment, operational oversight, and seamless integration with client business processes, enabling clients to establish a strong and scalable presence in India."
+  },
+  {
+    "objectID": "presentation.html#limitations",
+    "href": "presentation.html#limitations",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Limitations",
+    "text": "Limitations\n\nEvery machine learning project has constraints.\nThis section highlights key model, summarization, and deployment limitations.\nHelps define boundaries for interpretation and guides future improvements.\n\n\nBefore diving into specific model or project-level challenges, it’s important to set context. No ML pipeline is perfect — models come with assumptions, hardware constraints, and domain gaps.\nThis limitations section will help us understand where things might go wrong, or where further tuning is needed. It also points out areas where future work could yield the most benefit."
+  },
+  {
+    "objectID": "presentation.html#section-3",
+    "href": "presentation.html#section-3",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "",
+    "text": "Model-Level Limitations: Whisper\n\nHardware Requirements: Large Whisper models need GPUs; CPU inference is slow.\nInconsistent Formatting: Output lacks punctuation and proper sentence segmentation.\nLimited Domain Understanding: Struggles with mathematical or technical language.\nAccent and Noise Sensitivity: Accuracy drops slightly with strong accents or noise.\n\n\nWhisper performs well in general, but its size and resource demands make it difficult to run on lightweight devices. It also doesn’t always structure its output well — which makes summarization harder. While multilingual, Whisper isn’t fine-tuned for technical subjects like mathematics, which can reduce accuracy for domain-specific lectures."
+  },
+  {
+    "objectID": "presentation.html#model-level-limitations-bart",
+    "href": "presentation.html#model-level-limitations-bart",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Model-Level Limitations: BART",
+    "text": "Model-Level Limitations: BART\n\nHallucinations: May invent information not in the transcript.\nChunking Issues: Large inputs must be split, hurting context retention.\nFactual Inaccuracy: Sometimes combines unrelated ideas.\nWeak with Technical Content: Fails to handle formulas or structured arguments.\n\n\nBART is strong in general summarization, but prone to generating misleading or overly generic summaries. Chunk-based summarization weakens context flow, especially across topic transitions. Most critically, BART is not designed for technical domains — it cannot preserve math expressions or logical reasoning."
+  },
+  {
+    "objectID": "presentation.html#project-level-limitations",
+    "href": "presentation.html#project-level-limitations",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Project-Level Limitations",
+    "text": "Project-Level Limitations\n\nEnglish-Only Evaluation: Indian languages like Hindi, Marathi not tested.\nSlow Inference: Large models cause delays even with GPU.\nNo Real-Time Support: Pipeline is batch-based, not live.\nMinimal Post-Editing: Output not cleaned for publication.\n\n\nProject-level constraints also shaped results. Due to time and scope, we focused only on English data. Real-time processing was outside scope due to Whisper’s size. Summaries and transcripts were auto-generated with minimal corrections."
+  },
+  {
+    "objectID": "presentation.html#future-scope-1",
+    "href": "presentation.html#future-scope-1",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "future scope",
+    "text": "future scope\n\n\n\nOJT Project – 2025"
+  },
+  {
+    "objectID": "presentation.html#section-4",
+    "href": "presentation.html#section-4",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "",
+    "text": "Model-Level Limitations: BART\n\nHallucinations: May invent information not in the transcript.\nChunking Issues: Large inputs must be split, hurting context retention.\nFactual Inaccuracy: Sometimes combines unrelated ideas.\nWeak with Technical Content: Fails to handle formulas or structured arguments.\n\n\nBART is strong in general summarization, but prone to generating misleading or overly generic summaries. Chunk-based summarization weakens context flow, especially across topic transitions. Most critically, BART is not designed for technical domains — it cannot preserve math expressions or logical reasoning."
+  },
+  {
+    "objectID": "presentation.html#section-5",
+    "href": "presentation.html#section-5",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "",
+    "text": "Project-Level Limitations\n\nEnglish-Only Evaluation: Indian languages like Hindi, Marathi not tested.\nSlow Inference: Large models cause delays even with GPU.\nNo Real-Time Support: Pipeline is batch-based, not live.\nMinimal Post-Editing: Output not cleaned for publication.\n\n\nProject-level constraints also shaped results. Due to time and scope, we focused only on English data. Real-time processing was outside scope due to Whisper’s size. Summaries and transcripts were auto-generated with minimal corrections."
+  },
+  {
+    "objectID": "presentation.html#acknowledgements",
+    "href": "presentation.html#acknowledgements",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Acknowledgements",
+    "text": "Acknowledgements\n\nDr. Dinesh Helwade for guidance and support\nPurva Puranik and Pranav Ransing for technical assistance\nPradnyaa InfoVision for providing the platform and resources\nOpen-source community for tools like Whisper, BART, and Streamlit\n\n\nThis project would not have been possible without the support and guidance of Dr. Dinesh Helwade, who provided the vision and encouragement to pursue this initiative. Special thanks to Purva Puranik and Pranav Ransing for their technical assistance in building the web interface and integrating various components.\nI would also like to acknowledge Pradnyaa InfoVision for providing the platform and resources to execute this project. Finally, a big thank you to the open-source community for creating and maintaining the tools that made this work possible, including Whisper, BART, and Streamlit."
+  },
+  {
+    "objectID": "presentation.html#thank-you",
+    "href": "presentation.html#thank-you",
+    "title": "Video/Audio Transcription and Summarization",
+    "section": "Thank You!",
+    "text": "Thank You!\n\nI appreciate your time and attention.\nLooking forward to your questions and feedback.\n\nScan the QR code to view the presentation:\n\n\nUse this moment to thank the audience, mentors, and teammates. Invite questions or feedback, and point them to the GitHub repo if they want to explore the code or try out the app themselves.\n\n\n\n\nOJT Project – 2025"
+  }
+]
